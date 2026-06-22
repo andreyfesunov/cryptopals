@@ -2,4 +2,4 @@ default:
     @just --list
 
 test:
-  go test ./...
+  go test ./... -v
