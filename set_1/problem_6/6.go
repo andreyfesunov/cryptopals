@@ -21,13 +21,13 @@ func GetEditDistance(a, b []byte) (int, error) {
 	return score, nil
 }
 
-type ComparationResult struct {
+type ComparisonResult struct {
 	length int
 	value  float64
 }
 
 func GetKeyCandidates(bytes []byte, minLength, maxLength, candidates int) ([]int, error) {
-	results := make([]ComparationResult, 0, maxLength-minLength+1)
+	results := make([]ComparisonResult, 0, maxLength-minLength+1)
 
 	for length := minLength; length <= maxLength; length += 1 {
 		distance, err := GetEditDistance(bytes[:length], bytes[length:2*length])
@@ -36,7 +36,7 @@ func GetKeyCandidates(bytes []byte, minLength, maxLength, candidates int) ([]int
 			return nil, err
 		}
 
-		results = append(results, ComparationResult{
+		results = append(results, ComparisonResult{
 			length: length,
 			value:  float64(distance) / float64(length),
 		})
