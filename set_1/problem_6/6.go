@@ -30,15 +30,26 @@ func GetKeyCandidates(bytes []byte, minLength, maxLength, candidates int) ([]int
 	results := make([]ComparisonResult, 0, maxLength-minLength+1)
 
 	for length := minLength; length <= maxLength; length += 1 {
-		distance, err := GetEditDistance(bytes[:length], bytes[length:2*length])
+		if length*2 > len(bytes) {
+			break
+		}
 
-		if err != nil {
-			return nil, err
+		total, pairs := 0.0, 0
+
+		for i := 0; i+2*length <= len(bytes); i += length {
+			distance, err := GetEditDistance(bytes[i:i+length], bytes[i+length:i+2*length])
+
+			if err != nil {
+				return nil, err
+			}
+
+			total += float64(distance) / float64(length)
+			pairs += 1
 		}
 
 		results = append(results, ComparisonResult{
 			length: length,
-			value:  float64(distance) / float64(length),
+			value:  total / float64(pairs),
 		})
 	}
 
@@ -54,4 +65,25 @@ func GetKeyCandidates(bytes []byte, minLength, maxLength, candidates int) ([]int
 	}
 
 	return answers, nil
+}
+
+func GetBlocks(ciphertext []byte, keysize int) [][]byte {
+	var blocks [][]byte
+	for start := 0; start < len(ciphertext); start += keysize {
+		end := min(start+keysize, len(ciphertext))
+		blocks = append(blocks, ciphertext[start:end])
+	}
+	return blocks
+}
+
+func TransposeBlocks(blocks [][]byte, keysize int) [][]byte {
+	transposed := make([][]byte, keysize)
+	for i := range keysize {
+		for _, block := range blocks {
+			if i < len(block) {
+				transposed[i] = append(transposed[i], block[i])
+			}
+		}
+	}
+	return transposed
 }

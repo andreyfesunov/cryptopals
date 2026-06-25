@@ -24,23 +24,30 @@ func GetXORFunction(i rune) func(rune) rune {
 	}
 }
 
-func Decrypt(encrypted string, goodChars []string) (string, error) {
+type DecryptionResult struct {
+	Key    rune
+	Result string
+}
+
+func Decrypt(encrypted string, goodChars []string) (DecryptionResult, error) {
 	encryptedBytes, err := hex.DecodeString(encrypted)
 	if err != nil {
-		return "", fmt.Errorf("an error occured while decoding string: %v", err)
+		return DecryptionResult{}, fmt.Errorf("an error occured while decoding string: %v", err)
 	}
 
 	maxScore := 0
 	var result []byte
+	var key rune
 
 	for i := range 256 {
 		text := bytes.Map(GetXORFunction(rune(i)), encryptedBytes)
 		score := ScoreEnglish(string(text), goodChars)
 		if score > maxScore {
 			maxScore = score
+			key = rune(i)
 			result = text
 		}
 	}
 
-	return string(result), nil
+	return DecryptionResult{Result: string(result), Key: key}, nil
 }

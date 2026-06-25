@@ -8,5 +8,5 @@ func TestProblem3(t *testing.T) {
 	if err != nil {
 		t.Fatal("an error occured while decrypting", err)
 	}
-	t.Log("successfully decrypted", decrypted)
+	t.Log("successfully decrypted", decrypted.Result)
 }
